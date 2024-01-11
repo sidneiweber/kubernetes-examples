@@ -1,0 +1,16 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana-ingress-route
+  namespace: monitoring
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`grafana.sidneiweber.com.br`)
+      kind: Rule
+      services:
+      - kind: Service
+        name: prometheus-grafana
+        port: 80

@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whoami
+  namespace: whoami
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: whoami
+  template:
+    metadata:
+      labels:
+        app: whoami
+    spec:
+      containers:
+      - name: whoami
+        image: traefik/whoami
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami
+  namespace: whoami
+spec:
+  ports:
+  - name: http
+    targetPort: 80
+    port: 80
+  selector:
+    app: whoami
+---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: whoami
+#   namespace: whoami
+#   annotations:
+#     traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+#     traefik.ingress.kubernetes.io/router.middlewares: default-strip-www-https@kubernetescrd
+#     cert-manager.io/issuer: "whoami-tls"
+# spec:
+#   tls:
+#     - hosts:
+#         - whoami.sidneiweber.com.br
+#       #secretName: whoami-tls
+#   rules:
+#   - host: whoami.sidneiweber.com.br
+#     http:
+#       paths:
+#         - path: /
+#           pathType: Prefix
+#           backend:
+#             service:
+#               name: whoami
+#               port:
+#                number: 80
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: whoami-ingress
+  namespace: whoami
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  tls:
+    #secretName: le-tls # Informe o secret com certificado aqui.
+    #certResolver: name
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: HostRegexp(`whoami.sidneiweber.com.br`)
+      kind: Rule
+      services:
+        - name: whoami
+          port: 80

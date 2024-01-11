@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: whoami-certificate
+  namespace: whoami
+spec:
+  dnsNames:
+    - "whoami.sidneiweber.com.br"
+  secretName: whoami-tls
+  issuerRef:
+    name: whoami-tls
+    kind: ClusterIssuer
